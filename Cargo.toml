@@ -2,6 +2,11 @@
 name = "modelfile"
 version = "0.1.0"
 edition = "2021"
+license = "LICENSE"
+description = "A parser for Ollama Modelfiles"
+homepage = "https://github.com/covercash2/modelfile"
+repository = "https://github.com/covercash2/modelfile"
+readme = "README.md"
 
 [dependencies]
 nom = "7.1.3"
@@ -14,5 +19,6 @@ toml = "0.8.19"
 insta = { version = "1.41.1", features = ["json", "toml"] }
 
 [lints.clippy]
+allow_attributes_without_reason = "deny"
 unwrap_used = "deny"
 
