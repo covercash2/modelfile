@@ -460,7 +460,11 @@ mod tests {
         let modelfile: Modelfile = load_modelfiles(TEST_DATA_DIR)
             .into_iter()
             .find(|(path, _contents)| {
-                path.file_name().unwrap().to_str().unwrap() == "llama3.2:latest.Modelfile"
+                path.file_name()
+                    .expect("test data should have a valid filename")
+                    .to_str()
+                    .expect("should be able to convert OsStr to str")
+                    == "llama3.2:latest.Modelfile"
             })
             .expect("should have at least one test case")
             .1

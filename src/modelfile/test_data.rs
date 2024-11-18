@@ -39,9 +39,9 @@ pub fn load_modelfiles(test_dir: impl AsRef<Path>) -> Vec<(PathBuf, String)> {
         })
         .filter(|path| {
             path.extension()
-                .unwrap()
+                .expect("should be able to parse path extension")
                 .to_str()
-                .unwrap()
+                .expect("should be able to convert OsStr to str")
                 .ends_with("Modelfile")
         })
         .map(|path| {
