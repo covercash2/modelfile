@@ -8,6 +8,8 @@ homepage = "https://github.com/covercash2/modelfile"
 repository = "https://github.com/covercash2/modelfile"
 readme = "README.md"
 exclude = ["test/"]
+categories = ["parser-implementations", "parsers", "encoding", "text-processing"]
+keywords = ["machine-learning", "parser", "parsing", "llama", "ollama", "ai", "chatbot"]
 
 [dependencies]
 nom = "7.1.3"
