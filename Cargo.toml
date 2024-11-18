@@ -2,7 +2,7 @@
 name = "modelfile"
 version = "0.1.0"
 edition = "2021"
-license = "LICENSE"
+license-file = "LICENSE"
 description = "A parser for Ollama Modelfiles"
 homepage = "https://github.com/covercash2/modelfile"
 repository = "https://github.com/covercash2/modelfile"
