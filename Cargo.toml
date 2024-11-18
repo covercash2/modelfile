@@ -7,6 +7,7 @@ description = "A parser for Ollama Modelfiles"
 homepage = "https://github.com/covercash2/modelfile"
 repository = "https://github.com/covercash2/modelfile"
 readme = "README.md"
+exclude = ["test/"]
 
 [dependencies]
 nom = "7.1.3"
