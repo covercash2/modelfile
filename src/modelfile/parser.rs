@@ -21,11 +21,11 @@ use nom::{
         complete::tag_no_case,
         streaming::{tag, take_until, take_while, take_while1},
     },
-    character::complete::{self, char, multispace1},
+    character::complete::{self, multispace1},
     combinator::{eof, value},
     error::context,
     multi::{many1, many_till},
-    sequence::{delimited, pair, preceded, separated_pair, terminated},
+    sequence::{delimited, pair, preceded, terminated},
     IResult, Parser as _,
 };
 
@@ -73,23 +73,6 @@ pub fn from(input: &str) -> IResult<&str, Instruction> {
 
 pub fn model_id(input: &str) -> IResult<&str, &str> {
     complete::not_line_ending.parse(input)
-}
-
-// TODO
-fn versioned_model(input: &str) -> IResult<&str, ModelId> {
-    separated_pair(filename, char(':'), filename)
-        .map(|(name, version)| ModelId::VersionedModel {
-            name: name.to_string(),
-            version: version.to_string(),
-        })
-        .parse(input)
-}
-
-#[derive(Debug, Clone)]
-pub enum ModelId {
-    VersionedModel { name: String, version: String },
-    Blob { path: PathBuf },
-    TensorFile(TensorFile),
 }
 
 /// Parse a comment line.
@@ -456,7 +439,8 @@ mod tests {
     #[test]
     fn triple_quotes_are_parsed() {
         for quote in TEST_TRIPLE_QUOTES {
-            let (_rest, parsed) = triple_quote_string(quote).expect("should be able to parse triple quoted strings");
+            let (_rest, parsed) =
+                triple_quote_string(quote).expect("should be able to parse triple quoted strings");
             assert_snapshot!(parsed, @r"
             here's some text
                         in triple quotes
