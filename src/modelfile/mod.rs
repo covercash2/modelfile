@@ -1,9 +1,7 @@
-//! Ollama is developed by genius snowflakes
-//! who know more about serialized configuration file formats
-//! than everyone else who has come before them.
-//! Thus, it was necessary for them to create a bespoke file format
-//! to define a derived model.
-//! This is an attempt to parse that genius file format in Rust.
+//! This module defines the [`Modelfile`] structure
+//! that represents a structured format of the [Ollama Modelfile].
+//!
+//! [Ollama Modelfile]: https://github.com/ollama/ollama/blob/main/docs/modelfile.md
 
 use std::{
     fmt::Display,
@@ -50,13 +48,9 @@ impl Modelfile {
         );
 
         renderer.push_opt("SYSTEM", self.system.as_ref());
-
         renderer.push_opt("TEMPLATE", self.template.as_ref());
-
         renderer.push_vec("PARAMETER", &self.parameters);
-
         renderer.push_vec("MESSAGE", &self.messages);
-
         renderer.push_opt("LICENSE", self.license.as_ref());
 
         renderer.finalize()
@@ -331,7 +325,10 @@ impl Display for TensorFile {
     }
 }
 
-/// https://github.com/ollama/ollama/blob/main/docs/modelfile.md#parameter
+/// A parameter for the model.
+/// [docs]
+///
+/// [docs]: https://github.com/ollama/ollama/blob/main/docs/modelfile.md#parameter
 #[derive(Debug, Clone, EnumDiscriminants, strum::Display, Serialize, Deserialize)]
 #[strum_discriminants(name(ParameterName))]
 #[strum_discriminants(derive(EnumIter, IntoStaticStr, EnumString, VariantArray))]

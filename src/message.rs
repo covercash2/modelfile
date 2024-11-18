@@ -1,3 +1,7 @@
+//! A structure to define messages to and from a language model
+//! hosted with [Ollama].
+//!
+//! [Ollama]: https://github.com/ollama/ollama/tree/main
 use std::sync::Arc;
 
 use serde::{Deserialize, Serialize};

@@ -25,8 +25,6 @@ pub const TEST_SINGLE_QUOTE_MULTILINE: &[&str] = &[r#""here's some text
             and return it back
             ""#];
 
-pub const TEMPLATE_PREFIX: &str = "TEMPLATE ";
-
 /// The directory containing Modelfiles
 pub const TEST_DATA_DIR: &str = "./test";
 
