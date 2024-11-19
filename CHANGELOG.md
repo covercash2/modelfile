@@ -8,6 +8,11 @@ Modelfile is a perfect and immutable format, but this parser is sadly not
 
 - Initial commit
 
+### 🐛 Bug Fixes
+
+- Add changelog
+- Fix typos with typos
+
 ### 📚 Documentation
 
 - Add README
