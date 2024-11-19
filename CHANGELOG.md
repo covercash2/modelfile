@@ -4,6 +4,19 @@ Modelfile is a perfect and immutable format, but this parser is sadly not
 
 ## [unreleased]
 
+## [0.2.0](https://github.com/covercash2/modelfile/compare/v0.1.1...v0.2.0) - 2024-11-19
+
+### Fixed
+
+- update builder
+- update builder and README
+
+### Other
+
+- Merge pull request [#8](https://github.com/covercash2/modelfile/pull/8) from covercash2/fix/builder
+- update changelog
+- add docstrings
+
 ## [0.1.1](https://github.com/covercash2/modelfile/compare/v0.1.0...v0.1.1) - 2024-11-19
 
 ### Fixed
