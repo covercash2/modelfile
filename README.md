@@ -43,5 +43,6 @@ fn parse() {
 
 ```
 
+[Ollama]: https://ollama.com/
 [Modelfile]: https://github.com/ollama/ollama/blob/main/docs/modelfile.md
 [`nom`]: https://github.com/rust-bakery/nom

@@ -1,7 +1,16 @@
+//! Build a [Modelfile] from parts.
+//!
+//! Use [`Modelfile::build_on`] to create a Builder
+//! from an existing parsed [Modelfile]
 use crate::message::Message;
 
 use super::{error::ModelfileError, Modelfile, Multiline, Parameter, TensorFile};
 
+/// Used to build a [`Modelfile`].
+///
+/// This structure was originally a helper
+/// to create a [`Modelfile`] from parsed [`super::Instruction`]s,
+/// but it can also be used to build upon an existing [Modelfile].
 #[derive(Clone, Debug, Default)]
 pub struct ModelfileBuilder {
     pub from: Option<String>,

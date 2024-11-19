@@ -178,11 +178,29 @@ impl FromStr for Modelfile {
     }
 }
 
+/// A single instruction to [Ollama]
+/// that tells [Ollama] how to configure a language model.
+/// Each instruction is defined in the [Modelfile docs]
+///
+/// [Ollama]: https://ollama.com/
+/// [Modelfile docs]: https://github.com/ollama/ollama/blob/main/docs/modelfile.md
 pub enum Instruction {
+    /// Some part of the file that is skipped,
+    /// like an empty line or comment.
     Skip,
+    /// The model to derive from,
+    /// either a SHA blob,
+    /// GGUF file,
+    /// directory pointing to `safetensor` files,
+    /// or a `<model>:<version>` identifier for an existing model.
     From(String),
     Parameter(Parameter),
+    /// A [golang] [Ollama template].
+    ///
+    /// [golang]: https://pkg.go.dev/text/template
+    /// [Ollama template]: https://github.com/ollama/ollama/blob/main/docs/modelfile.md#template
     Template(String),
+    /// The system message for the given model.
     System(String),
     Adapter(TensorFile),
     License(String),
@@ -207,6 +225,8 @@ impl From<Message> for Instruction {
     }
 }
 
+/// A file that represents a Tensor.
+/// Either a GGUF or safetensor file.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum TensorFile {
     Gguf(PathBuf),
