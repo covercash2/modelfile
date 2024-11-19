@@ -1,5 +1,7 @@
 # `modelfile`
 
+[![build](https://github.com/covercash2/modelfile/actions/workflows/rust.yml/badge.svg)](https://github.com/covercash2/modelfile/actions/workflows/rust.yml)
+
 A parser and serder compatible stucture
 for Ollama [Modelfile]s written in Rust. 🦀
 
