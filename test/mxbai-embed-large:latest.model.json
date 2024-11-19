@@ -32,7 +32,7 @@
     "tokenizer.ggml.model": "bert",
     "tokenizer.ggml.padding_token_id": 0,
     "tokenizer.ggml.scores": null,
-    "tokenizer.ggml.seperator_token_id": 102,
+    "tokenizer.ggml.separator_token_id": 102,
     "tokenizer.ggml.token_type": null,
     "tokenizer.ggml.token_type_count": 2,
     "tokenizer.ggml.tokens": null,
