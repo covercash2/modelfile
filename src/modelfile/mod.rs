@@ -9,6 +9,7 @@ use std::{
     str::FromStr,
 };
 
+use builder::ModelfileBuilder;
 use error::ModelfileError;
 use parser::instructions;
 use serde::{Deserialize, Serialize};
@@ -16,6 +17,7 @@ use strum::{EnumDiscriminants, EnumIter, EnumString, IntoStaticStr, VariantArray
 
 use crate::message::Message;
 
+pub mod builder;
 pub mod error;
 mod parser;
 
@@ -55,6 +57,10 @@ impl Modelfile {
 
         renderer.finalize()
     }
+
+    pub fn build_on(self) -> ModelfileBuilder {
+        self.into()
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -72,6 +78,12 @@ impl Multiline {
 impl From<String> for Multiline {
     fn from(value: String) -> Self {
         Self(value)
+    }
+}
+
+impl<'a> From<&'a str> for Multiline {
+    fn from(value: &'a str) -> Self {
+        Self(value.to_string())
     }
 }
 
@@ -148,138 +160,47 @@ impl FromStr for Modelfile {
                 }
             })?;
 
-        let mut modelfile = ModelfileBuilder::default();
-
-        for instruction in instructions {
-            let _ = match instruction {
-                Instruction::From(model) => modelfile.from(model)?,
-                Instruction::Parameter(parameter) => modelfile.parameter(parameter),
-                Instruction::Template(template) => modelfile.template(template)?,
-                Instruction::System(system) => modelfile.system(system)?,
-                Instruction::Adapter(tensor_file) => modelfile.adapter(tensor_file)?,
-                Instruction::License(license) => modelfile.license(license),
-                Instruction::Message(message) => modelfile.message(message),
-                Instruction::Skip => &mut modelfile,
-            };
-        }
+        let modelfile = instructions.into_iter().try_fold(
+            ModelfileBuilder::default(),
+            |builder, instruction| match instruction {
+                Instruction::From(model) => builder.from(model),
+                Instruction::Parameter(parameter) => Ok(builder.parameter(parameter)),
+                Instruction::Template(template) => builder.template(template),
+                Instruction::System(system) => builder.system(system),
+                Instruction::Adapter(tensor_file) => builder.adapter(tensor_file),
+                Instruction::License(license) => Ok(builder.license(license)),
+                Instruction::Message(message) => Ok(builder.message(message)),
+                Instruction::Skip => Ok(builder),
+            },
+        )?;
 
         modelfile.build()
     }
 }
 
-#[derive(Clone, Debug, Default)]
-pub struct ModelfileBuilder {
-    from: Option<String>,
-    parameters: Vec<Parameter>,
-    template: Option<Multiline>,
-    system: Option<Multiline>,
-    adapter: Option<TensorFile>,
-    license: Option<Multiline>,
-    messages: Vec<Message>,
-}
-
-impl ModelfileBuilder {
-    pub fn build(self) -> Result<Modelfile, ModelfileError> {
-        let ModelfileBuilder {
-            from,
-            parameters,
-            template,
-            system,
-            adapter,
-            license,
-            messages,
-        } = self;
-        if let Some(from) = from {
-            Ok(Modelfile {
-                from,
-                parameters,
-                template,
-                system,
-                adapter,
-                license,
-                messages,
-            })
-        } else {
-            Err(ModelfileError::Builder(
-                "Modelfile requires a FROM instruction".into(),
-            ))
-        }
-    }
-
-    pub fn from(&mut self, input: String) -> Result<&mut Self, ModelfileError> {
-        if self.from.is_some() {
-            Err(ModelfileError::Builder(format!(
-                "Modelfile can only have one FROM instruction: {}",
-                input
-            )))
-        } else {
-            self.from = Some(input);
-            Ok(self)
-        }
-    }
-
-    pub fn parameter(&mut self, parameter: Parameter) -> &mut Self {
-        self.parameters.push(parameter);
-        self
-    }
-
-    pub fn template(&mut self, template: String) -> Result<&mut Self, ModelfileError> {
-        if self.template.is_some() {
-            Err(ModelfileError::Builder(format!(
-                "Modelfile can only have one TEMPLATE instruction: {}",
-                template
-            )))
-        } else {
-            self.template = Some(template.into());
-            Ok(self)
-        }
-    }
-
-    pub fn system(&mut self, system: String) -> Result<&mut Self, ModelfileError> {
-        if self.system.is_some() {
-            Err(ModelfileError::Builder(format!(
-                "Modelfile can only have one SYSTEM instruction: {}",
-                system,
-            )))
-        } else {
-            self.system = Some(system.into());
-            Ok(self)
-        }
-    }
-
-    pub fn adapter(&mut self, adapter: TensorFile) -> Result<&mut Self, ModelfileError> {
-        if self.adapter.is_some() {
-            Err(ModelfileError::Builder(format!(
-                "Modelfile can only have one ADAPTER instruction: {:?}",
-                adapter,
-            )))
-        } else {
-            self.adapter = Some(adapter);
-            Ok(self)
-        }
-    }
-
-    pub fn license(&mut self, license: String) -> &mut Self {
-        if let Some(existing) = &self.license {
-            self.license = Some(existing.extend(&license));
-        } else {
-            self.license = Some(license.into());
-        }
-
-        self
-    }
-
-    pub fn message(&mut self, message: Message) -> &mut Self {
-        self.messages.push(message);
-        self
-    }
-}
-
+/// A single instruction to [Ollama]
+/// that tells [Ollama] how to configure a language model.
+/// Each instruction is defined in the [Modelfile docs]
+///
+/// [Ollama]: https://ollama.com/
+/// [Modelfile docs]: https://github.com/ollama/ollama/blob/main/docs/modelfile.md
 pub enum Instruction {
+    /// Some part of the file that is skipped,
+    /// like an empty line or comment.
     Skip,
+    /// The model to derive from,
+    /// either a SHA blob,
+    /// GGUF file,
+    /// directory pointing to `safetensor` files,
+    /// or a `<model>:<version>` identifier for an existing model.
     From(String),
     Parameter(Parameter),
+    /// A [golang] [Ollama template].
+    ///
+    /// [golang]: https://pkg.go.dev/text/template
+    /// [Ollama template]: https://github.com/ollama/ollama/blob/main/docs/modelfile.md#template
     Template(String),
+    /// The system message for the given model.
     System(String),
     Adapter(TensorFile),
     License(String),
@@ -304,6 +225,8 @@ impl From<Message> for Instruction {
     }
 }
 
+/// A file that represents a Tensor.
+/// Either a GGUF or safetensor file.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum TensorFile {
     Gguf(PathBuf),
