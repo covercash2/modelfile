@@ -78,11 +78,11 @@ pub fn model_id(input: &str) -> IResult<&str, &str> {
 /// Parse a comment line.
 /// Comments start with a `#` and take a single line.
 pub fn comment(input: &str) -> IResult<&str, ()> {
-    let comment_delimeter = tag("#");
+    let comment_delimiter = tag("#");
 
     context(
         "comment",
-        value((), pair(comment_delimeter, complete::not_line_ending)),
+        value((), pair(comment_delimiter, complete::not_line_ending)),
     )
     .parse(input)
 }
@@ -508,7 +508,7 @@ mod tests {
     }
 
     #[test]
-    fn adapaters_are_parsed() {
+    fn adapters_are_parsed() {
         let test_data = include_str!("./testdata/adapters.txt");
         for test_case in test_data.lines() {
             dbg!(test_case);
