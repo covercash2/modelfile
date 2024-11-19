@@ -55,6 +55,27 @@ impl Modelfile {
 
         renderer.finalize()
     }
+
+    pub fn build_on(self) -> ModelfileBuilder {
+        let Modelfile {
+            from,
+            parameters,
+            template,
+            system,
+            adapter,
+            license,
+            messages,
+        } = self;
+        ModelfileBuilder {
+            from: Some(from),
+            parameters,
+            template,
+            system,
+            adapter,
+            license,
+            messages,
+        }
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -72,6 +93,12 @@ impl Multiline {
 impl From<String> for Multiline {
     fn from(value: String) -> Self {
         Self(value)
+    }
+}
+
+impl<'a> From<&'a str> for Multiline {
+    fn from(value: &'a str) -> Self {
+        Self(value.to_string())
     }
 }
 
@@ -148,20 +175,19 @@ impl FromStr for Modelfile {
                 }
             })?;
 
-        let mut modelfile = ModelfileBuilder::default();
-
-        for instruction in instructions {
-            let _ = match instruction {
-                Instruction::From(model) => modelfile.from(model)?,
-                Instruction::Parameter(parameter) => modelfile.parameter(parameter),
-                Instruction::Template(template) => modelfile.template(template)?,
-                Instruction::System(system) => modelfile.system(system)?,
-                Instruction::Adapter(tensor_file) => modelfile.adapter(tensor_file)?,
-                Instruction::License(license) => modelfile.license(license),
-                Instruction::Message(message) => modelfile.message(message),
-                Instruction::Skip => &mut modelfile,
-            };
-        }
+        let modelfile = instructions.into_iter().try_fold(
+            ModelfileBuilder::default(),
+            |builder, instruction| match instruction {
+                Instruction::From(model) => builder.from(model),
+                Instruction::Parameter(parameter) => Ok(builder.parameter(parameter)),
+                Instruction::Template(template) => builder.template(template),
+                Instruction::System(system) => builder.system(system),
+                Instruction::Adapter(tensor_file) => builder.adapter(tensor_file),
+                Instruction::License(license) => Ok(builder.license(license)),
+                Instruction::Message(message) => Ok(builder.message(message)),
+                Instruction::Skip => Ok(builder),
+            },
+        )?;
 
         modelfile.build()
     }
@@ -206,48 +232,48 @@ impl ModelfileBuilder {
         }
     }
 
-    pub fn from(&mut self, input: String) -> Result<&mut Self, ModelfileError> {
+    pub fn from(mut self, input: impl ToString) -> Result<Self, ModelfileError> {
         if self.from.is_some() {
             Err(ModelfileError::Builder(format!(
                 "Modelfile can only have one FROM instruction: {}",
-                input
+                input.to_string()
             )))
         } else {
-            self.from = Some(input);
+            self.from = Some(input.to_string());
             Ok(self)
         }
     }
 
-    pub fn parameter(&mut self, parameter: Parameter) -> &mut Self {
+    pub fn parameter(mut self, parameter: Parameter) -> Self {
         self.parameters.push(parameter);
         self
     }
 
-    pub fn template(&mut self, template: String) -> Result<&mut Self, ModelfileError> {
+    pub fn template(mut self, template: impl ToString) -> Result<Self, ModelfileError> {
         if self.template.is_some() {
             Err(ModelfileError::Builder(format!(
                 "Modelfile can only have one TEMPLATE instruction: {}",
-                template
+                template.to_string()
             )))
         } else {
-            self.template = Some(template.into());
+            self.template = Some(template.to_string().into());
             Ok(self)
         }
     }
 
-    pub fn system(&mut self, system: String) -> Result<&mut Self, ModelfileError> {
+    pub fn system(mut self, system: impl ToString) -> Result<Self, ModelfileError> {
         if self.system.is_some() {
             Err(ModelfileError::Builder(format!(
                 "Modelfile can only have one SYSTEM instruction: {}",
-                system,
+                system.to_string(),
             )))
         } else {
-            self.system = Some(system.into());
+            self.system = Some(system.to_string().into());
             Ok(self)
         }
     }
 
-    pub fn adapter(&mut self, adapter: TensorFile) -> Result<&mut Self, ModelfileError> {
+    pub fn adapter(mut self, adapter: TensorFile) -> Result<Self, ModelfileError> {
         if self.adapter.is_some() {
             Err(ModelfileError::Builder(format!(
                 "Modelfile can only have one ADAPTER instruction: {:?}",
@@ -259,17 +285,17 @@ impl ModelfileBuilder {
         }
     }
 
-    pub fn license(&mut self, license: String) -> &mut Self {
+    pub fn license(mut self, license: impl AsRef<str>) -> Self {
         if let Some(existing) = &self.license {
-            self.license = Some(existing.extend(&license));
+            self.license = Some(existing.extend(license.as_ref()));
         } else {
-            self.license = Some(license.into());
+            self.license = Some(license.as_ref().into());
         }
 
         self
     }
 
-    pub fn message(&mut self, message: Message) -> &mut Self {
+    pub fn message(mut self, message: Message) -> Self {
         self.messages.push(message);
         self
     }
