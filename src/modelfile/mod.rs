@@ -184,7 +184,8 @@ impl FromStr for Modelfile {
 ///
 /// [Ollama]: https://ollama.com/
 /// [Modelfile docs]: https://github.com/ollama/ollama/blob/main/docs/modelfile.md
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, strum::Display)]
+#[strum(serialize_all = "SCREAMING_SNAKE_CASE")]
 pub enum Instruction {
     /// Some part of the file that is skipped,
     /// like an empty line or comment.

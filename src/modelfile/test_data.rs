@@ -62,5 +62,4 @@ mod tests {
         let modelfiles: Vec<(PathBuf, String)> = load_modelfiles(TEST_DATA_DIR);
         assert!(!modelfiles.is_empty());
     }
-
 }
