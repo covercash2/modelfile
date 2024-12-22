@@ -4,6 +4,12 @@ Modelfile is a perfect and immutable format, but this parser is sadly not
 
 ## [unreleased]
 
+## [0.2.1](https://github.com/covercash2/modelfile/compare/v0.2.0...v0.2.1) - 2024-12-22
+
+### Fixed
+
+- more derives for Instruction
+
 ## [0.2.0](https://github.com/covercash2/modelfile/compare/v0.1.1...v0.2.0) - 2024-11-20
 
 ### Fixed
