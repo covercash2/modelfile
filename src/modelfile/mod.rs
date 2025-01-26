@@ -490,7 +490,17 @@ mod tests {
     fn modelfile_instructions_snapshot() {
         let test_data: Vec<TestData> = load_modelfiles(TEST_DATA_DIR);
 
-        let test_data = test_data.first().expect("test data was empty");
+        let test_data = test_data
+            .into_iter()
+            .find(|data| {
+                data.path
+                    .file_name()
+                    .expect("unable to read file name")
+                    .to_str()
+                    .expect("unable to convert filename to string")
+                    == "llama3.1:latest.Modelfile"
+            })
+            .expect("could not load test data");
 
         let modelfile: Modelfile = test_data
             .contents
@@ -504,6 +514,7 @@ mod tests {
         assert_debug_snapshot!(instruction_names, @r"
         [
             From,
+            Parameter,
             Parameter,
             Parameter,
             Template,
