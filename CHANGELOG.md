@@ -4,6 +4,12 @@ Modelfile is a perfect and immutable format, but this parser is sadly not
 
 ## [unreleased]
 
+## [0.2.2](https://github.com/covercash2/modelfile/compare/v0.2.1...v0.2.2) - 2024-12-22
+
+### Fixed
+
+- add strum::Display to Instruction
+
 ## [0.2.1](https://github.com/covercash2/modelfile/compare/v0.2.0...v0.2.1) - 2024-12-22
 
 ### Fixed
