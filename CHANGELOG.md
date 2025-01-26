@@ -4,6 +4,17 @@ Modelfile is a perfect and immutable format, but this parser is sadly not
 
 ## [unreleased]
 
+## [0.3.0](https://github.com/covercash2/modelfile/compare/v0.2.2...v0.3.0) - 2025-01-26
+
+### Fixed
+
+- make tests deterministic
+- allow turning Modelfile into a iterator of instructions
+
+### Other
+
+- Merge branch 'main' into co/fix/better_instruction_display
+
 ## [0.2.2](https://github.com/covercash2/modelfile/compare/v0.2.1...v0.2.2) - 2024-12-22
 
 ### Fixed
