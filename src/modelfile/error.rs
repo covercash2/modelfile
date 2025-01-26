@@ -1,6 +1,7 @@
 use thiserror::Error;
 
 #[derive(Debug, Clone, Error)]
+#[non_exhaustive]
 pub enum ModelfileError {
     /// Error in [`super::builder::ModelfileBuilder`].
     #[error("error building Modelfile from parts")]
