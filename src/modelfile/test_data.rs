@@ -28,7 +28,12 @@ pub const TEST_SINGLE_QUOTE_MULTILINE: &[&str] = &[r#""here's some text
 /// The directory containing Modelfiles
 pub const TEST_DATA_DIR: &str = "./test";
 
-pub fn load_modelfiles(test_dir: impl AsRef<Path>) -> Vec<(PathBuf, String)> {
+pub struct TestData {
+    pub path: PathBuf,
+    pub contents: String,
+}
+
+pub fn load_modelfiles(test_dir: impl AsRef<Path>) -> Vec<TestData> {
     test_dir
         .as_ref()
         .read_dir()
@@ -44,11 +49,9 @@ pub fn load_modelfiles(test_dir: impl AsRef<Path>) -> Vec<(PathBuf, String)> {
                 .expect("should be able to convert OsStr to str")
                 .ends_with("Modelfile")
         })
-        .map(|path| {
-            (
-                path.clone(),
-                std::fs::read_to_string(&path).expect("could not read file contents"),
-            )
+        .map(|path| TestData {
+            path: path.clone(),
+            contents: std::fs::read_to_string(&path).expect("could not read file contents"),
         })
         .collect()
 }
@@ -59,7 +62,7 @@ mod tests {
 
     #[test]
     fn test_data_loads() {
-        let modelfiles: Vec<(PathBuf, String)> = load_modelfiles(TEST_DATA_DIR);
+        let modelfiles: Vec<TestData> = load_modelfiles(TEST_DATA_DIR);
         assert!(!modelfiles.is_empty());
     }
 }

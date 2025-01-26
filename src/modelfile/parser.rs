@@ -67,7 +67,7 @@ pub fn from(input: &str) -> IResult<&str, Instruction> {
     let space = take_while1(|c| c == ' ');
 
     context("FROM", preceded(pair(from_tag, space), model_id))
-        .map(|model| Instruction::From(model.to_string()))
+        .map(|model| Instruction::From(model.into()))
         .parse(input)
 }
 
@@ -377,7 +377,7 @@ mod tests {
     use strum::IntoEnumIterator;
 
     use crate::modelfile::test_data::{
-        load_modelfiles, TEST_COMMENTS, TEST_DATA_DIR, TEST_FROM, TEST_MODEL_IDS,
+        load_modelfiles, TestData, TEST_COMMENTS, TEST_DATA_DIR, TEST_FROM, TEST_MODEL_IDS,
         TEST_SINGLE_QUOTE_MULTILINE, TEST_TRIPLE_QUOTES,
     };
 
@@ -385,9 +385,13 @@ mod tests {
 
     #[test]
     fn instructions_are_parsed() {
-        let modelfiles: Vec<(PathBuf, String)> = load_modelfiles(TEST_DATA_DIR);
+        let modelfiles: Vec<TestData> = load_modelfiles(TEST_DATA_DIR);
 
-        for (path, case) in modelfiles {
+        for TestData {
+            path,
+            contents: case,
+        } in modelfiles
+        {
             dbg!(&path);
             instructions(&case).expect("should be able to parse instructions from Modelfile");
         }

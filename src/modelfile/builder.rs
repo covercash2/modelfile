@@ -2,9 +2,14 @@
 //!
 //! Use [`Modelfile::build_on`] to create a Builder
 //! from an existing parsed [Modelfile]
+
 use crate::message::Message;
 
-use super::{error::ModelfileError, Modelfile, Multiline, Parameter, TensorFile};
+use super::{
+    error::ModelfileError,
+    instruction::{Adapter, BaseModel, License, Messages, Parameters, SystemMessage, Template},
+    Instruction, Modelfile, Parameter,
+};
 
 /// Used to build a [`Modelfile`].
 ///
@@ -13,13 +18,13 @@ use super::{error::ModelfileError, Modelfile, Multiline, Parameter, TensorFile};
 /// but it can also be used to build upon an existing [Modelfile].
 #[derive(Clone, Debug, Default)]
 pub struct ModelfileBuilder {
-    pub from: Option<String>,
-    pub parameters: Vec<Parameter>,
-    pub template: Option<Multiline>,
-    pub system: Option<Multiline>,
-    pub adapter: Option<TensorFile>,
-    pub license: Option<Multiline>,
-    pub messages: Vec<Message>,
+    pub from: Option<BaseModel>,
+    pub parameters: Parameters,
+    pub template: Option<Template>,
+    pub system: Option<SystemMessage>,
+    pub adapter: Option<Adapter>,
+    pub license: Option<License>,
+    pub messages: Messages,
 }
 
 impl ModelfileBuilder {
@@ -33,6 +38,9 @@ impl ModelfileBuilder {
             license,
             messages,
         } = self;
+
+        let parameters = Parameters::from_iter(parameters);
+
         if let Some(from) = from {
             Ok(Modelfile {
                 from,
@@ -50,6 +58,19 @@ impl ModelfileBuilder {
         }
     }
 
+    pub fn instruction(self, instruction: Instruction) -> Result<Self, ModelfileError> {
+        match instruction {
+            Instruction::From(model) => self.from(model),
+            Instruction::Parameter(parameter) => Ok(self.parameter(parameter)),
+            Instruction::Template(template) => self.template(template),
+            Instruction::System(system) => self.system(system),
+            Instruction::Adapter(tensor_file) => self.adapter(tensor_file),
+            Instruction::License(license) => Ok(self.license(license)),
+            Instruction::Message(message) => Ok(self.message(message)),
+            Instruction::Skip => Ok(self),
+        }
+    }
+
     pub fn from(mut self, input: impl ToString) -> Result<Self, ModelfileError> {
         if self.from.is_some() {
             Err(ModelfileError::Builder(format!(
@@ -57,24 +78,24 @@ impl ModelfileBuilder {
                 input.to_string()
             )))
         } else {
-            self.from = Some(input.to_string());
+            self.from = Some(input.to_string().into());
             Ok(self)
         }
     }
 
     pub fn parameter(mut self, parameter: Parameter) -> Self {
-        self.parameters.push(parameter);
+        self.parameters.as_mut().push(parameter);
         self
     }
 
-    pub fn template(mut self, template: impl ToString) -> Result<Self, ModelfileError> {
+    pub fn template(mut self, template: Template) -> Result<Self, ModelfileError> {
         if self.template.is_some() {
             Err(ModelfileError::Builder(format!(
                 "Modelfile can only have one TEMPLATE instruction: {}",
-                template.to_string()
+                template
             )))
         } else {
-            self.template = Some(template.to_string().into());
+            self.template = Some(template);
             Ok(self)
         }
     }
@@ -91,7 +112,7 @@ impl ModelfileBuilder {
         }
     }
 
-    pub fn adapter(mut self, adapter: TensorFile) -> Result<Self, ModelfileError> {
+    pub fn adapter(mut self, adapter: Adapter) -> Result<Self, ModelfileError> {
         if self.adapter.is_some() {
             Err(ModelfileError::Builder(format!(
                 "Modelfile can only have one ADAPTER instruction: {:?}",
@@ -105,7 +126,7 @@ impl ModelfileBuilder {
 
     pub fn license(mut self, license: impl AsRef<str>) -> Self {
         if let Some(existing) = &self.license {
-            self.license = Some(existing.extend(license.as_ref()));
+            self.license = Some(existing.extend(license.as_ref()).into());
         } else {
             self.license = Some(license.as_ref().into());
         }
@@ -114,8 +135,18 @@ impl ModelfileBuilder {
     }
 
     pub fn message(mut self, message: Message) -> Self {
-        self.messages.push(message);
+        self.messages.as_mut().push(message);
         self
+    }
+}
+
+impl TryFrom<Vec<Instruction>> for ModelfileBuilder {
+    type Error = ModelfileError;
+
+    fn try_from(instructions: Vec<Instruction>) -> Result<Self, Self::Error> {
+        instructions
+            .into_iter()
+            .try_fold(ModelfileBuilder::default(), ModelfileBuilder::instruction)
     }
 }
 
@@ -130,6 +161,7 @@ impl From<Modelfile> for ModelfileBuilder {
             license,
             messages,
         } = value;
+
         ModelfileBuilder {
             from: Some(from),
             parameters,

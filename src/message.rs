@@ -7,7 +7,7 @@ use std::sync::Arc;
 use serde::{Deserialize, Serialize};
 use strum::{EnumDiscriminants, EnumString};
 
-#[derive(Debug, Clone, strum::Display, EnumDiscriminants, Serialize, Deserialize)]
+#[derive(Debug, Clone, strum::Display, EnumDiscriminants, Serialize, Deserialize, PartialEq)]
 #[strum_discriminants(name(MessageRole))]
 #[strum_discriminants(derive(EnumString))]
 #[strum_discriminants(strum(serialize_all = "lowercase"))]
