@@ -449,7 +449,7 @@ mod tests {
                     .expect("test data should have a valid filename")
                     .to_str()
                     .expect("should be able to convert OsStr to str")
-                    == "llama3.2:latest.Modelfile"
+                    == "llama3.2.latest.Modelfile"
             })
             .expect("should have at least one test case")
             .contents
@@ -498,7 +498,7 @@ mod tests {
                     .expect("unable to read file name")
                     .to_str()
                     .expect("unable to convert filename to string")
-                    == "llama3.1:latest.Modelfile"
+                    == "llama3.1.latest.Modelfile"
             })
             .expect("could not load test data");
 
