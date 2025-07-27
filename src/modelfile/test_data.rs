@@ -25,8 +25,11 @@ pub const TEST_SINGLE_QUOTE_MULTILINE: &[&str] = &[r#""here's some text
             and return it back
             ""#];
 
-/// The directory containing Modelfiles
-pub const TEST_DATA_DIR: &str = "./test";
+/// The directory containing Modelfiles that are expected to be valid.
+pub const TEST_GOOD_DATA_DIR: &str = "./fixtures/good/";
+
+/// The directory containing Modelfiles that are expected to be invalid.
+pub const TEST_BAD_DATA_DIR: &str = "./fixtures/bad/";
 
 pub struct TestData {
     pub path: PathBuf,
@@ -62,7 +65,10 @@ mod tests {
 
     #[test]
     fn test_data_loads() {
-        let modelfiles: Vec<TestData> = load_modelfiles(TEST_DATA_DIR);
+        let modelfiles: Vec<TestData> = load_modelfiles(TEST_GOOD_DATA_DIR);
+        assert!(!modelfiles.is_empty());
+
+        let modelfiles: Vec<TestData> = load_modelfiles(TEST_BAD_DATA_DIR);
         assert!(!modelfiles.is_empty());
     }
 }
