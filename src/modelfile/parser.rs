@@ -377,7 +377,7 @@ mod tests {
     use strum::IntoEnumIterator;
 
     use crate::modelfile::test_data::{
-        load_modelfiles, TestData, TEST_COMMENTS, TEST_DATA_DIR, TEST_FROM, TEST_MODEL_IDS,
+        load_modelfiles, TestData, TEST_COMMENTS, TEST_FROM, TEST_GOOD_DATA_DIR, TEST_MODEL_IDS,
         TEST_SINGLE_QUOTE_MULTILINE, TEST_TRIPLE_QUOTES,
     };
 
@@ -385,7 +385,7 @@ mod tests {
 
     #[test]
     fn instructions_are_parsed() {
-        let modelfiles: Vec<TestData> = load_modelfiles(TEST_DATA_DIR);
+        let modelfiles: Vec<TestData> = load_modelfiles(TEST_GOOD_DATA_DIR);
 
         for TestData {
             path,
