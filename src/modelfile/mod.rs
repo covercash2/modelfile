@@ -432,6 +432,8 @@ mod tests {
             let result = case
                 .parse::<Modelfile>()
                 .expect_err("should not be able to parse bad Modelfiles");
+
+            insta::assert_snapshot!(result.to_string(), @"error building Modelfile from parts");
         }
     }
 
