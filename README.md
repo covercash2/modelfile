@@ -1,6 +1,8 @@
 # `modelfile`
 
 [![build](https://github.com/covercash2/modelfile/actions/workflows/rust.yml/badge.svg)](https://github.com/covercash2/modelfile/actions/workflows/rust.yml)
+![Crates.io Version](https://img.shields.io/crates/v/modelfile)
+![docs.rs](https://img.shields.io/docsrs/modelfile)
 
 A parser and serde compatible structure
 for Ollama [Modelfile]s written in Rust. 🦀
