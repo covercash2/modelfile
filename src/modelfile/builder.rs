@@ -91,8 +91,7 @@ impl ModelfileBuilder {
     pub fn template(mut self, template: Template) -> Result<Self, ModelfileError> {
         if self.template.is_some() {
             Err(ModelfileError::Builder(format!(
-                "Modelfile can only have one TEMPLATE instruction: {}",
-                template
+                "Modelfile can only have one TEMPLATE instruction: {template}",
             )))
         } else {
             self.template = Some(template);
@@ -115,8 +114,7 @@ impl ModelfileBuilder {
     pub fn adapter(mut self, adapter: Adapter) -> Result<Self, ModelfileError> {
         if self.adapter.is_some() {
             Err(ModelfileError::Builder(format!(
-                "Modelfile can only have one ADAPTER instruction: {:?}",
-                adapter,
+                "Modelfile can only have one ADAPTER instruction: {adapter:?}",
             )))
         } else {
             self.adapter = Some(adapter);

@@ -397,13 +397,13 @@ pub enum Parameter {
 #[cfg(test)]
 mod tests {
     use insta::{assert_debug_snapshot, assert_snapshot};
-    use test_data::{load_modelfiles, TestData, TEST_DATA_DIR};
+    use test_data::{load_modelfiles, TestData, TEST_GOOD_DATA_DIR};
 
-    use super::*;
+    use super::{test_data::TEST_BAD_DATA_DIR, *};
 
     #[test]
     fn modelfiles_are_parsed() {
-        let modelfiles: Vec<TestData> = load_modelfiles(TEST_DATA_DIR);
+        let modelfiles: Vec<TestData> = load_modelfiles(TEST_GOOD_DATA_DIR);
 
         for TestData {
             path,
@@ -420,8 +420,26 @@ mod tests {
     }
 
     #[test]
+    fn bad_modelfiles_are_not_parsed() {
+        let modelfiles: Vec<TestData> = load_modelfiles(TEST_BAD_DATA_DIR);
+
+        for TestData {
+            path,
+            contents: case,
+        } in modelfiles
+        {
+            dbg!(&path);
+            let result = case
+                .parse::<Modelfile>()
+                .expect_err("should not be able to parse bad Modelfiles");
+
+            insta::assert_snapshot!(result.to_string(), @"error building Modelfile from parts");
+        }
+    }
+
+    #[test]
     fn modelfiles_can_be_rendered_as_toml() {
-        let modelfiles: Vec<TestData> = load_modelfiles(TEST_DATA_DIR);
+        let modelfiles: Vec<TestData> = load_modelfiles(TEST_GOOD_DATA_DIR);
 
         for TestData {
             path,
@@ -442,14 +460,14 @@ mod tests {
 
     #[test]
     fn snapshot_render() {
-        let modelfile: Modelfile = load_modelfiles(TEST_DATA_DIR)
+        let modelfile: Modelfile = load_modelfiles(TEST_GOOD_DATA_DIR)
             .into_iter()
             .find(|TestData { path, contents: _ }| {
                 path.file_name()
                     .expect("test data should have a valid filename")
                     .to_str()
                     .expect("should be able to convert OsStr to str")
-                    == "llama3.2:latest.Modelfile"
+                    == "llama3.2.latest.Modelfile"
             })
             .expect("should have at least one test case")
             .contents
@@ -488,7 +506,7 @@ mod tests {
 
     #[test]
     fn modelfile_instructions_snapshot() {
-        let test_data: Vec<TestData> = load_modelfiles(TEST_DATA_DIR);
+        let test_data: Vec<TestData> = load_modelfiles(TEST_GOOD_DATA_DIR);
 
         let test_data = test_data
             .into_iter()
@@ -498,7 +516,7 @@ mod tests {
                     .expect("unable to read file name")
                     .to_str()
                     .expect("unable to convert filename to string")
-                    == "llama3.1:latest.Modelfile"
+                    == "llama3.1.latest.Modelfile"
             })
             .expect("could not load test data");
 

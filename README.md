@@ -21,7 +21,7 @@ Good news!
 use modelfile::modelfile::Modelfile;
 
 fn parse() {
-    let my_modelfile_string = std::fs::read_to_string("./test/llama3.2:latest.Modelfile")
+    let my_modelfile_string = std::fs::read_to_string("./test/llama3.2.latest.Modelfile")
         .expect("handle your dang errors");
 
     let my_modelfile: Modelfile = my_modelfile_string.parse()
